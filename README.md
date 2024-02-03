@@ -1,59 +1,31 @@
-> 기존 requests 모듈을 이용한 로그인이 작동하지 않아 selenium을 사용하도록 변경되었습니다. (Thanks to @bagng)
-> chromedriver 설치 후 코드를 실행해주세요.
-> 리눅스(Ubuntu 22.04) 및 맥(macOS Sonoma)에서 작동 되는 것을 확인했습니다.
-> 윈도우는 확인해보지 못했으나, 혹시 실행되신 분이 있으면 알려주세요.
+클리앙 알뜰구매 페이지에 있는 네이버 페이 링크를 자동 클릭하는 이미지로, 아래 링크에 있는 소스를 조금 수정해서 만들었습니다.
+https://github.com/stateofai/naver-paper
 
-## Prerequisites
-### Install Google Chrome
-```bash
-$ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-$ sudo apt-get update
-$ sudo apt-get install -y gdebi-core
-$ sudo gdebi google-chrome-stable_current_amd64.deb
-```
-> Verifying Google Chrome Installation
-```bash
-$ google-chrome --version
-Google Chrome 120.0.6099.224
-```
-> Install ChromeDriver
-- Go to [https://googlechromelabs.github.io/chrome-for-testing/]
-- Download ChromeDriver same as Google Chrome Version
-- Unzip and Copy chromedriver binary file to /usr/bin/chromedriver
-> This is example
-```bash
-$ google-chrome --version
-Google Chrome 120.0.6099.109
-$ wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/linux64/chromedriver-linux64.zip
- --2024-01-17 10:01:07--  https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/linux64/chromedriver-linux64.zip
-Resolving edgedl.me.gvt1.com (edgedl.me.gvt1.com)... 34.104.35.123, 2600:1900:4110:86f::
-Connecting to edgedl.me.gvt1.com (edgedl.me.gvt1.com)|34.104.35.123|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 8624482 (8.2M) [application/octet-stream]
-Saving to: ‘chromedriver-linux64.zip’
-chromedriver-linux64.zip   100%[=======================================>]   8.22M  5.21MB/s    in 1.6s
-2024-01-17 10:01:10 (5.21 MB/s) - ‘chromedriver-linux64.zip’ saved [8624482/8624482]
-$ unzip chromedriver-linux64.zip
-Archive:  chromedriver-linux64-120.0.6099.109.zip
-inflating: chromedriver-linux64/LICENSE.chromedriver
-inflating: chromedriver-linux64/chromedriver
-$ sudo cp chromedriver-linux64/chromedriver /usr/local/bin
-$ sudo chmod a+x /usr/local/bin/chromedriver
-$ /usr/local/bin/chromedriver --version 
-ChromeDriver 120.0.6099.109 (3419140ab665596f21b385ce136419fde0924272-refs/branch-heads/6099@{#1483})
-```
-## Usage
-```
-$ git clone https://github.com/stateofai/naver-paper.git
-$ cd naver-paper
-$ pip install -r requirements.txt
-$ python run_new.py 
-```
+사용법
+1. 네이버 로그인 전용 아이디 생성(아래 링크 참고)
+  - https://help.naver.com/service/5640/contents/10219?lang=ko
+  - https://help.naver.com/service/5640/contents/8584?lang=ko
 
-## Contribution
-* 저는 전문개발자가 아니라 코드의 품질은 낮을 수 있습니다. 많은 능력자분들이 기여를 해주시면 좋겠어요
+2. docker-compose.yml 생성
+  docker-compose.yml 파일을 아래와 같이 만들고, 네이버 로그인 전용 아이디 생성에서 만든 NAVER_ID와 NAVER_PASSWORD의 값을 수정
 
-## References
-* https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/win64/chromedriver-win64.zip
-* https://help.naver.com/service/5640/contents/10219?lang=ko
-* https://help.naver.com/service/5640/contents/8584?lang=ko
+version: '3'
+services:
+  naver-pay-picker:
+    container_name: naver-pay-picker
+    image: isul/naver-pay-picker:v1.0
+    volumes:
+      - ./data:/data
+    environment:
+      - NAVER_ID=네이버아이디
+      - NAVER_PASSWORD=네이버암호
+
+컨테이너는 실행 후 자동 종료됩니다. 만약 디버깅, 소스코드를 수정하여 테스트하는 등의 목적으로 링크 클릭 완료 후에도 컨테이너를 그대로 유지하고자할 경우에는 환경변수 DEBUG=true을 추가하면 됩니다.
+
+3. data 폴더 생성
+  docker-compose.yml이 존재하는 경로에 data 폴더를 생성합니다.
+
+4. 실행
+  아래 명령을 내리면 링크가 자동 클릭됩니다. 아래 명령을 스케줄러에 등록하여 주기적으로 호출하면 됩니다.
+
+docker-compose up
