@@ -77,25 +77,42 @@ def find_naver_campaign_links(source_urls, visited_urls_file='visited_urls.txt')
     return campaign_links
 
 
-def run(id, passwd) -> None:
+def run(id, passwd, debug) -> None:
     # The base URL to start with
     source_urls = []
     source_urls.append("https://www.clien.net/service/board/jirum")
     source_urls.append("https://damoang.net/economy")
     campaign_links = find_naver_campaign_links(source_urls, "/data/visited_urls.txt")
-    if(campaign_links == []):
+    if campaign_links == []:
         print("모든 링크를 방문했습니다.")
         return
+    if debug:
+        print("campaign_links.count: ", len(campaign_links))
 
     # 크롬 드라이버 옵션 설정
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--single-process')
     chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument("--disable-renderer-backgrounding");
+    chrome_options.add_argument("--disable-background-timer-throttling");
+    chrome_options.add_argument("--disable-backgrounding-occluded-windows");
+    chrome_options.add_argument("--disable-client-side-phishing-detection");
+    chrome_options.add_argument("--disable-crash-reporter");
+    chrome_options.add_argument("--disable-oopr-debug-crash-dump");
+    chrome_options.add_argument("--no-crash-upload");
+    chrome_options.add_argument("--disable-gpu");
+    chrome_options.add_argument("--disable-extensions");
+    chrome_options.add_argument("--disable-plugins");
+    chrome_options.add_argument("--disable-low-res-tiling");
 
     # 새로운 창 생성
+    if debug:
+        print("크롬 실행 중...")
     driver = webdriver.Chrome(options=chrome_options)
+
+    if debug:
+        print("네이버 접속 중...")
     driver.get('https://naver.com')
 
     # 현재 열려 있는 창 가져오기
@@ -118,6 +135,9 @@ def run(id, passwd) -> None:
     driver.switch_to.window(new_window_handle)
     driver2 = driver
 
+    if debug:
+        print("네이버 로그인 입력 컨트롤 찾는 중...")
+
     username = driver2.find_element(By.NAME, 'id')
     pw = driver2.find_element(By.NAME, 'pw')
 
@@ -134,6 +154,9 @@ def run(id, passwd) -> None:
     #입력을 완료하면 로그인 버튼 클릭
     driver2.find_element(By.CLASS_NAME, "btn_login").click()
     time.sleep(1)
+
+    if debug:
+        print("네이버 로그인 완료")
 
     for link in campaign_links:
         print(link) # for debugging
@@ -152,8 +175,9 @@ def run(id, passwd) -> None:
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--id', type=str, required=False, help="naver id")
-parser.add_argument('-p', '--pwd', type=str, required=False, help="naver password")
+parser.add_argument('-i', '--id', type=str, required=True, help="naver id")
+parser.add_argument('-p', '--pwd', type=str, required=True, help="naver password")
+parser.add_argument('-d', '--debug', type=str, required=False, action=argparse.BooleanOptionalAction, help="debug")
 args = parser.parse_args()
 if args.id is None:
     print('use -i or --id argument')
@@ -162,4 +186,4 @@ if args.pwd is None:
     print('use -p or --pwd argument')
     exit(0)
 
-run(args.id, args.pwd)
+run(args.id, args.pwd, args.debug)

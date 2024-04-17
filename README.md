@@ -1,5 +1,5 @@
-클리앙 알뜰구매 페이지에 있는 네이버 페이 링크를 자동 클릭하는 이미지로, 아래 링크에 있는 소스를 조금 수정해서 만들었습니다.  
-https://github.com/stateofai/naver-paper  
+각종 커뮤니티 사이트에 있는 네이버 페이 링크를 자동 클릭하는 소스로 아래 원본 파이썬 소스코드를 조금 수정해서 만들었습니다.
+https://github.com/stateofai/naver-paper
 
 #**사용법**
     
@@ -14,7 +14,7 @@ version: '3'
 services:
   naver-pay-picker:
     container_name: naver-pay-picker
-    image: isul/naver-pay-picker:v1.0
+    image: isul/naver-pay-picker:v1.2
     volumes:
       - ./data:/data
     environment:
@@ -31,3 +31,5 @@ services:
 ```console
 docker-compose up
 ```
+
+** 도커를 사용하지 않고 "/src/usr/local/app"에 있는 파이썬 소스를 직접 실행해도 됩니다.

@@ -4,7 +4,7 @@ if [ "$#" -eq 2 ]; then
 	python3 /usr/local/app/main.py -i $1 -p $2
 elif [ "$#" -eq 3 ]; then
 	# Stay up for container to stay alive
-	python3 /usr/local/app/main.py -i $1 -p $2
+	python3 /usr/local/app/main.py -i $1 -p $2 --debug
 	while [ 1 ] ; do
 	   sleep 1d
 	done
